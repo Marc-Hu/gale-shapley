@@ -1,0 +1,25 @@
+Sondage à remplir: https://docs.google.com/forms/d/1LtCC6t5y7tKAKeO4N0LS_YD4iQHGVnQYZF2I4dt4gqI/viewform
+
+*** Fichiers Tests
+TestPrefSpe.txt
+TestPrefEtu.txt
+
+*** Fichiers avec préférences du groupe
+PrefSpe.txt
+PrefEtu.txt
+
+*** Python
+main.py
+exemple.py
+test.txt
+
+*** Commandes Gurobi
+export GUROBI HOME="/opt/gurobi751/linux64"
+export PATH="${PATH}:${GUROBI HOME}/bin"
+export LD LIBRARY PATH="${LD LIBRARY PATH}:${GUROBI HOME}/lib"
+
+*** Commande Gurobi
+/opt/gurobi751/linux64/bin/gurobi cl ResultFile=affectation.sol fichierpl.lp
+
+*** Correction Fichier lp 
+TBD

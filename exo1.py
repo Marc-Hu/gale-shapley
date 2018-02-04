@@ -28,7 +28,7 @@ def contains(pref):
 	return None
 def check_full(prefSpe,cap,master_idx):
 	prefSpe[master_idx][2] = prefSpe[master_idx][2] + 1;
-	if prefSpe[master_idx][2] == cap[master_idx];
+	if prefSpe[master_idx][2] == cap[master_idx]:
 		prefSpe[master_idx][1] = True;	
 
 def prefer(prefMaster,master_idx,std_idx,result):
@@ -56,8 +56,8 @@ def gale_shapley_impl(prefSpe,prefEtu):
 			r = (prefEtu.index(courantEtu),master);
 			result.append(r);
 			check_full(prefSpe,cap,master);
-		elif 
-		courantEtu = contains(prefEtu);
+		# elif
+	 	courantEtu = contains(prefEtu);
 
 if __name__ == '__main__':
 	prefSpe = openPref("TestPrefSpe.txt", 2);

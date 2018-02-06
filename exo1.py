@@ -56,8 +56,8 @@ def propose(proposer, capacity=None):
         limit = capacity
 
     if proposer[NO_APPLIED_IDX] == limit:
-        print("limit reached",proposer)
-        proposer[IS_FREE_IDX] = False
+		proposer[IS_FREE_IDX] = False
+		print("limit reached",proposer)
     return index
 
 
@@ -107,7 +107,7 @@ def replace(second_match_index, result):
 
 
 # [[0, 5], [1, 6], [10, 4], [7, 7], [4, 1], [5, 0], [3, 0], [9, 2], [2, 8], [6, 8], [8, 3]]
-# [[0, 5], [1, 6], [10, 4], [7, 7], [4, 1], [5, 0], [3, 0], [9, 2], [2, 8], [6, 8], [8, 3]]
+
 
 def gale_shapley_impl(first_match_prefs, second_match_prefs, capacity, reversed):
     result = []  # this will hold tuple of our result (Student,Master)
@@ -164,8 +164,7 @@ def print_grid(grid):
 if __name__ == '__main__':
     pref_master = open_pref("prefSpe.txt", 2)
     pref_std = open_pref("prefEtu.txt", 1)
-    print_grid(pref_master)
-    print_grid(pref_std)
+
     result = student_gale_shapley(pref_std, pref_master)
     print(result)
     # result = masters_gale_shapley(pref_std, pref_master)

@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from random import randint
 from operator import itemgetter
 
+NB_TEST = 10
+
 def lectureFichier(s): # Definition d'une fonction, avec un parametre (s). Ne pas oublier les ":"
 	monFichier = open(s, "r"); # Ouverture en lecture. Indentation par rapport a la ligne d'avant (<-> bloc).
 	contenu = monFichier.readlines(); # Contenu contient une liste de chainces de caracteres, chaque chaine correspond a une ligne       
@@ -194,9 +196,9 @@ def generate_test(nb_Student):
 	return etu, (master, capacity);
 
 def display_perf(result):
-	display=[0]*len(result);
+	display=[0]*len(result); 
 	print(len(result));
-	for i in range(len(result)):
+	for i in range(len(result)): # La moyenne de tous les temps
 		display[i]=sum(result[i])/len(result[i]);
 	plt.plot(display);
 	plt.xlabel('Performance des tests');
@@ -215,12 +217,12 @@ if __name__ == '__main__':
 		cote_parcours_prefEtu = openPref(sys.argv[1], 1)[0];
 		resultat_cote_parcours=gale_shapley_parcours(cote_parcours_prefSpe,cote_parcours_prefEtu);
 		print(sorted(resultat_cote_parcours, key=itemgetter(0)));
-	elif len(sys.argv)==2:
+	elif len(sys.argv)==2: # phase de test
 		nb_student = 200;
 		perf=[0]*10;
-		for i in range(10):
-			perf[i]=[0] * 2
-			for j in range(2):
+		for i in range(10): # Test par pas de 200
+			perf[i]=[0] * NB_TEST
+			for j in range(NB_TEST): # Test tous les pas n fois
 				test_pref_etu, test_Pref_Spe=generate_test(nb_student+i*nb_student);
 				resultat=gale_shapley_impl(test_Pref_Spe, test_pref_etu);
 				# print(resultat[1]);

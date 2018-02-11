@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+import random
+import numpy as np
+import time
+import matplotlib.pyplot as plt
+from random import randint
 from operator import itemgetter
 
 def lectureFichier(s): # Definition d'une fonction, avec un parametre (s). Ne pas oublier les ":"
@@ -42,7 +47,7 @@ def prefer(result, res, master_pref, prefEtu):
 		if result[i][0] == res[0]: #Si on trouve un couple de meme master dans le tableau resultat
 			if master_pref[0].index(result[i][1])>master_pref[0].index(res[1]): #Si l'index de celui-ci est inferieur
 				prefEtu[res[1]]=(prefEtu[res[1]][0], True); #Le nouvel etudiant sera assigne à un master
-				sub=result[i]; #Subtitue
+				sub=result[i]; #Subtitut
 				result[i]=res; #Insertion du nouveau couple
 				res=sub; #Et le couple sortant sera de nouveau controle
 	prefEtu[res[1]]=(prefEtu[res[1]][0], False); # L'etudiant le moins interressant sera remi à False (car il est plus assigné avec un master)
@@ -71,7 +76,6 @@ def prefer_cote_parcours(result, res, student_pref, prefSpe, capacity):
 # Fonction qui va regarder si il y a au moins un master qui à de la place
 def masters_contains_false(preference_masters):
 	# On boucle sur tous les masters
-	# print(preference_masters);
 	for i in range(len(preference_masters)) :
 		# Si il y en a un de False avec on return true
 		if preference_masters[i][1]==False : 
@@ -79,7 +83,7 @@ def masters_contains_false(preference_masters):
 	return False; # Sinon on retourne false
 
 def etu_contains_false(pref_etu):
-	print(prefEtu);
+	# print(prefEtu);
 	for i in range(len(pref_etu)):
 		if pref_etu[i][1]==False:
 			return True;
@@ -87,6 +91,7 @@ def etu_contains_false(pref_etu):
 	
 # Fonction qui va appliquer l'algorithme de gale shapley cote etudiant
 def gale_shapley_impl(prefSpe,prefEtu):
+	start = time.clock();
 	i=0; 
 	result = []; # this will hold tuple of our result (Student,Master)
 	lenEtu = len(prefEtu);
@@ -114,6 +119,7 @@ def gale_shapley_impl(prefSpe,prefEtu):
 				if prefSpe[student_wish][2]==cap[student_wish]:
 					# Alors on met a True le master pour signifier que c'est complet
 					prefSpe[student_wish]=(prefSpe[student_wish][0],True);
+					# print(prefSpe[student_wish]);
 				# On met aussi l'etudiant à True pour signifier qu'il a un master
 				prefEtu[i]=(prefEtu[i][0], True); 
 				# print(prefSpe[int(student_wish)][1]);
@@ -122,7 +128,8 @@ def gale_shapley_impl(prefSpe,prefEtu):
 				result, prefEtu = prefer(result, res, prefSpe[student_wish], prefEtu);
 		i=i+1;
 	# print(result);
-	return result;
+	end = time.clock();
+	return (result, end-start);
 
 # Fonction qui va appliquer l'algorithme de gale shapley cote parcours
 def gale_shapley_parcours(prefSpe,prefEtu):
@@ -169,19 +176,56 @@ def reverse(result):
 		result[i]=(result[i][1], result[i][0]);
 	return result;
 
-if __name__ == '__main__':
-	prefSpe = openPref(sys.argv[2], 2);
-	prefEtu = openPref(sys.argv[1], 1)[0];
-	cote_parcours_prefSpe = openPref(sys.argv[2], 2);
-	cote_parcours_prefEtu = openPref(sys.argv[1], 1)[0];
-	print(cote_parcours_prefEtu);
-	# print(prefEtu);
-	print("Côté étudiant : ");
-	resultat=gale_shapley_impl(prefSpe, prefEtu);
-	resultat=reverse(resultat);
-	print(sorted(resultat, key=itemgetter(0)));
-	resultat_cote_parcours=gale_shapley_parcours(cote_parcours_prefSpe,cote_parcours_prefEtu);
-	# resultat_cote_parcours=reverse()
-	print(sorted(resultat_cote_parcours, key=itemgetter(0)));
+def generate_test(nb_Student):
+	etu=[list()]*nb_Student;
+	master=[list()]*9;
+	capacity=[1]*9;
+	i=0;
+	master_choice = np.arange(9);
+	etu_choice = np.arange(nb_Student);
+	for i in range(nb_Student) :
+		etu[i]=(random.sample(master_choice, len(master_choice)), False, 0);
+	for i in range(9):
+		master[i] = (random.sample(etu_choice, nb_Student), False, 0);
+	for i in range(nb_Student-len(capacity)):
+		index_cap = randint(0, 8);
+		capacity[index_cap]=capacity[index_cap]+1;
+	# print(etu, master, capacity);
+	return etu, (master, capacity);
 
+def display_perf(result):
+	display=[0]*len(result);
+	print(len(result));
+	for i in range(len(result)):
+		display[i]=sum(result[i])/len(result[i]);
+	plt.plot(display);
+	plt.xlabel('Performance des tests');
+	plt.show();
+
+if __name__ == '__main__':
+	if len(sys.argv)==3 :
+		prefSpe = openPref(sys.argv[2], 2);
+		prefEtu = openPref(sys.argv[1], 1)[0];
+		print("Côté étudiant : ");
+		resultat=gale_shapley_impl(prefSpe, prefEtu);
+		resultat=reverse(resultat);
+		print(sorted(resultat[0], key=itemgetter(0)));
+		print("Côté parcours : ");
+		cote_parcours_prefSpe = openPref(sys.argv[2], 2);
+		cote_parcours_prefEtu = openPref(sys.argv[1], 1)[0];
+		resultat_cote_parcours=gale_shapley_parcours(cote_parcours_prefSpe,cote_parcours_prefEtu);
+		print(sorted(resultat_cote_parcours, key=itemgetter(0)));
+	elif len(sys.argv)==2:
+		nb_student = 200;
+		perf=[0]*10;
+		for i in range(10):
+			perf[i]=[0] * 2
+			for j in range(2):
+				test_pref_etu, test_Pref_Spe=generate_test(nb_student+i*nb_student);
+				resultat=gale_shapley_impl(test_Pref_Spe, test_pref_etu);
+				# print(resultat[1]);
+				perf[i][j] = resultat[1];
+				# print(sorted(resultat[0], key=itemgetter(0)));
+		print(perf);
+		display_perf(perf);
 

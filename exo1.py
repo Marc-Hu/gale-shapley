@@ -42,9 +42,9 @@ def contains(pref):
 # Fonction qui va regarder si le master préfère le nouvel etudiant (res = tuple(master, student))
 # Par rapport a ses preferences (master_pref)
 # Et modifira par la meme occasion le tuple prefEtu (array pref, booleen si il a un master) 
-def prefer(result, res, master_pref, prefEtu):
+def prefer(result, res, master_pref, prefEtu, capacity):
 	couple_master=[]; #tableau de tuple de tous les couples d'un meme master
-	i=0; # iteration dans la tableau result
+	max_master=0;
 	for i in range (len(result)) :
 		if result[i][0] == res[0]: #Si on trouve un couple de meme master dans le tableau resultat
 			if master_pref[0].index(result[i][1])>master_pref[0].index(res[1]): #Si l'index de celui-ci est inferieur
@@ -52,6 +52,9 @@ def prefer(result, res, master_pref, prefEtu):
 				sub=result[i]; #Subtitut
 				result[i]=res; #Insertion du nouveau couple
 				res=sub; #Et le couple sortant sera de nouveau controle
+			max_master=max_master+1;
+		if max_master == capacity[res[0]]:
+			break;
 	prefEtu[res[1]]=(prefEtu[res[1]][0], False); # L'etudiant le moins interressant sera remi à False (car il est plus assigné avec un master)
 	return result, prefEtu; # On retourne le tableau result et les preferences des etudiants qui ont etaient modifie
 	
@@ -127,7 +130,7 @@ def gale_shapley_impl(prefSpe,prefEtu):
 				# print(prefSpe[int(student_wish)][1]);
 			else : # Sinon sa veut dire que le master est complet
 				# On va donc appeler la fonction result afin de voir si le master prefere le nouvel etudiant
-				result, prefEtu = prefer(result, res, prefSpe[student_wish], prefEtu);
+				result, prefEtu = prefer(result, res, prefSpe[student_wish], prefEtu, cap);
 		i=i+1;
 	# print(result);
 	end = time.clock();
@@ -196,14 +199,26 @@ def generate_test(nb_Student):
 	return etu, (master, capacity);
 
 def display_perf(result):
+	nb_etudiant = 200;
 	display=[0]*len(result); 
-	print(len(result));
+	student_axis=[0]*len(result);
+	penteX=[0]*len(result);
+	#print(len(result));
 	for i in range(len(result)): # La moyenne de tous les temps
 		display[i]=sum(result[i])/len(result[i]);
-	plt.plot(display);
+		student_axis[i]=nb_etudiant+nb_etudiant*i;
+	print(student_axis, display);
+	plt.plot(student_axis, display);
+	plt.axis([0, 2000, 0, 12])
 	plt.xlabel('Performance des tests');
-	plt.show();
+	plt.show(block=False);
 
+	plt.figure();
+	plt.plot(np.log(student_axis), np.log(display));
+	#plt.axis([0, 2000, 0, 12])
+	plt.xlabel('Performance des tests (log)');
+	plt.show();
+	
 if __name__ == '__main__':
 	if len(sys.argv)==3 :
 		prefSpe = openPref(sys.argv[2], 2);
@@ -218,15 +233,16 @@ if __name__ == '__main__':
 		resultat_cote_parcours=gale_shapley_parcours(cote_parcours_prefSpe,cote_parcours_prefEtu);
 		print(sorted(resultat_cote_parcours, key=itemgetter(0)));
 	elif len(sys.argv)==2: # phase de test
-		nb_student = 200;
+		nb_student = 400;
 		perf=[0]*10;
-		for i in range(10): # Test par pas de 200
+		for i in range(20): # Test par pas de 200
 			perf[i]=[0] * NB_TEST
 			for j in range(NB_TEST): # Test tous les pas n fois
 				test_pref_etu, test_Pref_Spe=generate_test(nb_student+i*nb_student);
 				resultat=gale_shapley_impl(test_Pref_Spe, test_pref_etu);
 				# print(resultat[1]);
 				perf[i][j] = resultat[1];
+				print("Test ", j+1, " sur ", NB_TEST, " fini pour ", str(len(resultat[0])), " etudiants.");
 				# print(sorted(resultat[0], key=itemgetter(0)));
 		print(perf);
 		display_perf(perf);
